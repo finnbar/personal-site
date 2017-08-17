@@ -1,12 +1,11 @@
 """
 TODO:
-* Make base templates.
-* Sanitise content to remove non-local scripts and images.
+* Implement markdown editing.
 """
 
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
-from secretkey import get_secret_key, admin
+from secretkey import get_secret_key, admin_salt, admin_hash
 from datetime import datetime
 import hashlib
 
@@ -17,6 +16,7 @@ app.secret_key = get_secret_key()
 db = SQLAlchemy(app)
 
 @app.route("/")
+@app.route("/index")
 def index():
     return render_template("index.html", categories=Category.query.all())
 
@@ -34,10 +34,41 @@ def blog(category=None):
         title = category.name.capitalize() + " Posts"
     return render_template("blog.html", blog_title=title, posts=posts, show_category=(category==None))
 
+@app.route("/admin")
+@app.route("/admin/")
+def admin():
+    if not "loggedin" in session:
+        return redirect(url_for("login"))
+    else:
+        return render_template("admin.html", posts=Post.query.order_by(Post.date))
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if "loggedin" in session:
+        return redirect(url_for("admin"))
+    if request.method == "POST":
+        print("was POST")
+        if "password" in request.form:
+            print(request.form["password"])
+            if authenticate(request.form["password"]):
+                print("was correct")
+                session["loggedin"] = True
+                return redirect(url_for("admin"))
+        return redirect(url_for("login"))
+    else:
+        return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session.pop("loggedin", None)
+    return redirect(url_for("index"))
+
 # The reason I'm doing this rather than introducing a full user database is that I only ever want there to be one user (me) editing posts. This isn't meant to scale at all.
 def authenticate(password):
-    details = admin()
-    return hashlib.sha256(password.encode("utf-8") + details["salt"]).hexdigest() == details["hashed"]
+    salt = admin_salt().encode("utf-8")
+    hashed = admin_hash()
+    encoded = password.encode("utf-8")
+    return hashlib.sha256(encoded + salt).hexdigest() == hashed
 
 # Post Database:
 
@@ -76,14 +107,3 @@ class Post(db.Model):
         self.date = date
         self.mainurl = mainurl
         self.category = category
-
-# Will not be implemented for a while. Needs to work with Flask-Upload and the Admin interface.
-class Image(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-    post = db.relationship('Post', backref=db.backref('images', lazy='dynamic'))
-    url = db.String(100)
-
-    def __init__(self, url, post):
-        self.url = url
-        self.post = post

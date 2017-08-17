@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Admin Page{% endblock %}
+{% block content %}
+<header class="fs-small ta-right smol">
+    <a href="/logout">Logout</a>
+</header>
+<section class="wrapper-large title">
+    <h1>Admin</h1>
+</section>
+<section class="wrapper-large">
+    <p><a href="/admin/new">Write a new post.</a></p>
+    <p>Or modify one of the existing posts:</p>
+    <ul>
+        {% for post in posts %}
+        <li><a href="/admin/{{post.id}}">{{post.title}}</a> posted in {{post.category.name}}.</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}
