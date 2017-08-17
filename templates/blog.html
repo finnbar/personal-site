@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{blog_title}}{% endblock %}
+{% block content %}
+<section class="wrapper-large title">
+    <h1>{{blog_title}}</h1>
+</section>
+{% for post in posts %}
+<section class="wrapper post">
+    <h2 class="post-title fw-bold">{{post.title}}</h2>
+    <div class="time fs-small">
+        posted {% if show_category %}in {{post.category.name}} at {% endif %}{{post.date.strftime("%d %B %Y")}}
+    </div>
+    <div class="content">
+        {{post.content}}
+    </div>
+    <div class="url">
+        <p><strong>URL:</strong> <a href="{{post.mainurl}}">{{post.mainurl}}</a></p>
+    </div>
+</section>
+{% endfor %}
+{% endblock %}

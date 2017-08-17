@@ -1,7 +1,6 @@
 """
 TODO:
 * Make base templates.
-* Configure login and post storage for SQLAlchemy.
 * Sanitise content to remove non-local scripts and images.
 """
 
@@ -19,7 +18,21 @@ db = SQLAlchemy(app)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", categories=Category.query.all())
+
+@app.route("/blog")
+@app.route("/blog/")
+@app.route("/blog/<category>")
+def blog(category=None):
+    posts = []
+    title = "Posts"
+    if not category:
+        posts = Post.query.order_by(Post.date)
+    else:
+        category = Category.query.filter_by(name=category.capitalize()).first_or_404()
+        posts = category.posts.order_by(Post.date)
+        title = category.name.capitalize() + " Posts"
+    return render_template("blog.html", blog_title=title, posts=posts, show_category=(category==None))
 
 # The reason I'm doing this rather than introducing a full user database is that I only ever want there to be one user (me) editing posts. This isn't meant to scale at all.
 def authenticate(password):
@@ -30,9 +43,9 @@ def authenticate(password):
 
 def new_post(title, content, date, mainurl, category_name, imageurls=[]):
     # Find category, if not there, make it.
-    category = Category.query.filter_by(name=category_name.lower()).first()
+    category = Category.query.filter_by(name=category_name.capitalize()).first()
     if not category:
-        category = Category(category_name.lower())
+        category = Category(category_name.capitalize())
         db.session.add(category)
     post = Post(title, content, date, mainurl, category)
     db.session.add(post)
@@ -43,7 +56,7 @@ def new_post(title, content, date, mainurl, category_name, imageurls=[]):
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.String(40)
+    name = db.Column(db.String(40))
 
     def __init__(self, name):
         self.name = name

@@ -1,3 +1,27 @@
 .smol {
     padding: 0 10px 0 0;
 }
+
+.title {
+    padding: 0 0;
+}
+
+.post {
+    padding: 1rem 2rem;
+}
+
+.post-title {
+    padding-bottom: 0;
+}
+
+.time {
+    padding-top: 0;
+}
+
+.url {
+    padding-top: 1rem;
+}
+
+.content {
+    padding-top: 1rem;
+}
