@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block head %}
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1">
+
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='cutestrap.min.css')}}">
+        <link rel="stylesheet" href="{{url_for('static', filename='other.css')}}">
+        {% endblock %}
+    </head>
+    <body>
+        <header class="fs-small ta-right smol">
+            <a href="admin">Admin site</a>
+        </header>
+        {% block content %}
+        {% endblock %}
+        <footer class="wrapper-large fs-small">
+            Website by Finnbar Keating. Website is MIT licensed (see the <a href="https://github.com/finnbar/personal-site">repo</a>), built using <a href="https://www.cutestrap.com/">Cutestrap</a>.
+        </footer>
+    </body>
+</html>

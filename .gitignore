@@ -102,3 +102,4 @@ ENV/
 
 # Others
 secretkey.py
+*.db
