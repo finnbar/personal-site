@@ -8,6 +8,7 @@
 
 .post {
     padding: 1rem 2rem;
+    border: 2px solid black;
 }
 
 .post-title {
@@ -24,4 +25,5 @@
 
 .content {
     padding-top: 1rem;
+    padding-left: 2rem;
 }
