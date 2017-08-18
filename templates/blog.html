@@ -15,7 +15,7 @@
         posted {% if show_category %}in {{post.category.name}} at {% endif %}{{post.date.strftime("%d %B %Y")}}
     </div>
     <div class="content">
-        {{post.content}}
+        {{post.content|markdown}}
     </div>
     <div class="url">
         <p><strong>URL:</strong> <a href="{{post.mainurl}}">{{post.mainurl}}</a></p>

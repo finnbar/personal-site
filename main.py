@@ -5,6 +5,7 @@ TODO:
 
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
+from flaskext.markdown import Markdown
 from secretkey import get_secret_key, admin_salt, admin_hash
 from datetime import datetime
 import hashlib
@@ -14,6 +15,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = get_secret_key()
 db = SQLAlchemy(app)
+md = Markdown(app)
 
 @app.route("/")
 @app.route("/index")
@@ -41,6 +43,27 @@ def admin():
         return redirect(url_for("login"))
     else:
         return render_template("admin.html", posts=Post.query.order_by(Post.date))
+
+@app.route("/admin/new")
+@app.route("/admin/new/")
+@app.route("/admin/<int:post_id>")
+def edit(post_id=None):
+    if not "loggedin" in session:
+        return redirect(url_for("login"))
+    if post_id == None:
+        return render_template("edit.html", post=EmptyPost())
+    else:
+        post = Post.query.get_or_404(post_id)
+        return render_template("edit.html", post=post)
+
+@app.route("/admin/update/<int:post_id>", methods=["POST"])
+def update(post_id):
+    if post_id == 0:
+        new_post(request.form["title"], request.form["content"], datetime.now(), request.form["url"], request.form["category"])
+    else:
+        # Update Post
+        pass
+    return redirect(url_for("admin"))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -72,7 +95,7 @@ def authenticate(password):
 
 # Post Database:
 
-def new_post(title, content, date, mainurl, category_name, imageurls=[]):
+def new_post(title, content, date, mainurl, category_name):
     # Find category, if not there, make it.
     category = Category.query.filter_by(name=category_name.capitalize()).first()
     if not category:
@@ -80,9 +103,6 @@ def new_post(title, content, date, mainurl, category_name, imageurls=[]):
         db.session.add(category)
     post = Post(title, content, date, mainurl, category)
     db.session.add(post)
-    for url in imageurls:
-        new_image = Image(url, post)
-        db.session.add(post)
     db.session.commit()
 
 class Category(db.Model):
@@ -107,3 +127,12 @@ class Post(db.Model):
         self.date = date
         self.mainurl = mainurl
         self.category = category
+
+class EmptyPost():
+    id = 0
+    title = "A New Post"
+    content = ""
+    mainurl = ""
+
+    def __init__(self):
+        pass

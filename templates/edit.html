@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Editing {{post.title}}{% endblock %}
+{% block content %}
+<header class="fs-small ta-right smol">
+    <a href="/admin">Back</a>
+    <a href="/logout">Logout</a>
+</header>
+<section class="wrapper-large title">
+    <h1>Editing {{post.title}}</h1>
+</section>
+<section class="wrapper-large">
+    <textarea form="edit" name="content"></textarea>
+    <form action="/admin/update/{{post.id}}" method="POST" id="edit">
+        <label class="title">
+            <input type="text" name="title" value="{{post.title}}" />
+            <span class="title__label">Title</span>
+        </label>
+        <label class="url">
+            <input type="text" name="url" value="{{post.mainurl}}" />
+            <span class="url__label">URL</span>
+        </label>
+        {% if post.id == 0 %}
+        <label class="category">
+            <input type="text" name="category" />
+            <span class="category__label">Category</span>
+        </label>
+        {% endif %}
+        <br />
+        <input type="submit" value="Save" />
+    </form>
+</section>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+    var simplemde = new SimpleMDE();
+    simplemde.value(`{{post.content}}`);
+</script>
+{% endblock %}
