@@ -29,10 +29,10 @@ def blog(category=None):
     posts = []
     title = "Posts"
     if not category:
-        posts = Post.query.order_by(Post.date)
+        posts = Post.query.order_by(Post.date.desc())
     else:
         category = Category.query.filter_by(name=category.capitalize()).first_or_404()
-        posts = category.posts.order_by(Post.date)
+        posts = category.posts.order_by(Post.date.desc())
         title = category.name.capitalize() + " Posts"
     return render_template("blog.html", blog_title=title, posts=posts, show_category=(category==None))
 
@@ -42,7 +42,7 @@ def admin():
     if not "loggedin" in session:
         return redirect(url_for("login"))
     else:
-        return render_template("admin.html", posts=Post.query.order_by(Post.date))
+        return render_template("admin.html", posts=Post.query.order_by(Post.date.desc()))
 
 @app.route("/admin/new")
 @app.route("/admin/new/")
@@ -62,7 +62,11 @@ def update(post_id):
         new_post(request.form["title"], request.form["content"], datetime.now(), request.form["url"], request.form["category"])
     else:
         # Update Post
-        pass
+        post = Post.query.get_or_404(post_id)
+        post.title = request.form["title"]
+        post.content = request.form["content"]
+        post.mainurl = request.form["url"]
+        db.session.commit()
     return redirect(url_for("admin"))
 
 @app.route("/login", methods=["GET", "POST"])
