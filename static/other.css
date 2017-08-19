@@ -10,6 +10,16 @@
     padding: 1rem 2rem;
     margin-bottom: 2rem;
     border: 1px solid rgba(171,171,171,0.48);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-height: 12rem;
+    transition: max-height 0.5s;
+}
+
+.post:hover {
+    max-height: 50rem; /* arbitrary, keeps the animation quick */
+    transition: max-height 0.5s;
 }
 
 .post-title {
@@ -28,3 +38,18 @@
     padding-top: 1rem;
     /*padding-left: 2rem;*/
 }
+
+.post-link:hover,
+.post-link:visited,
+.post-link:active,
+.post-link:link,
+.post-link {
+    text-decoration: none;
+    color: #3c3c3d;
+}
+
+/*@keyframes fadeIn {
+    0% {display: none; opacity:0;}
+    1% {display: block; opacity:0;}
+    0% {display: block; opacity:1;}
+}*/

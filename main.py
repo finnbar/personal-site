@@ -36,6 +36,14 @@ def blog(category=None):
         title = category.name.capitalize() + " Posts"
     return render_template("blog.html", blog_title=title, posts=posts, show_category=(category==None))
 
+@app.route("/post/<int:post_id>")
+def post(post_id=None):
+    if post_id == None:
+        return redirect(url_for("index"))
+    else:
+        post = Post.query.get_or_404(post_id)
+        return render_template("post.html", post=post)
+
 @app.route("/admin")
 @app.route("/admin/")
 def admin():
