@@ -9,7 +9,7 @@
     <h1>{{blog_title}}</h1>
 </section>
 {% for post in posts %}
-<div class="post-link" href="/post/{{post.id}}">
+<a class="post-link" href="/post/{{post.id}}">
     <section class="wrapper-large post">
         <h2 class="post-title fw-bold">{{post.title}}</h2>
         <div class="time fs-small">
@@ -25,7 +25,7 @@
         </div>
     </section>
     <div class="post-separator"><div class="fade"></div></div>
-</div>
+</a>
 {% endfor %}
 <script>
 window.onload = function() {
