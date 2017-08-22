@@ -9,7 +9,7 @@
     <h1>{{blog_title}}</h1>
 </section>
 {% for post in posts %}
-<a class="post-link" href="/post/{{post.id}}">
+<div class="post-link" href="/post/{{post.id}}">
     <section class="wrapper-large post">
         <h2 class="post-title fw-bold">{{post.title}}</h2>
         <div class="time fs-small">
@@ -24,8 +24,8 @@
             </div>
         </div>
     </section>
-    <div class="post-bottom wrapper-large"><div class="fade"></div></div>
-</a>
+    <div class="post-separator"><div class="fade"></div></div>
+</div>
 {% endfor %}
 <script>
 window.onload = function() {
@@ -33,9 +33,11 @@ window.onload = function() {
         // On hover
         console.log("on hover");
         $(this).children(".post-body").fadeIn(500);
+        $(this).parent().children(".post-separator").children(".fade").show();
     }, function() {
         // Off hover
         $(this).children(".post-body").fadeOut(500);
+        $(this).parent().children(".post-separator").children(".fade").hide();
     });
     $(".post-body").hide();
     $(".fade").hide();
