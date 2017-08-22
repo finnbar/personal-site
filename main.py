@@ -1,8 +1,3 @@
-"""
-TODO:
-* Implement markdown editing.
-"""
-
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flaskext.markdown import Markdown
@@ -66,6 +61,8 @@ def edit(post_id=None):
 
 @app.route("/admin/update/<int:post_id>", methods=["POST"])
 def update(post_id):
+    if not "loggedin" in session:
+        return redirect(url_for("index"))
     if post_id == 0:
         new_post(request.form["title"], request.form["content"], datetime.now(), request.form["url"], request.form["category"])
     else:
@@ -75,6 +72,18 @@ def update(post_id):
         post.content = request.form["content"]
         post.mainurl = request.form["url"]
         db.session.commit()
+    return redirect(url_for("admin"))
+
+@app.route("/admin/delete/<int:post_id>", methods=["GET"])
+def delete(post_id):
+    if not "loggedin" in session:
+        return redirect(url_for("index"))
+    post = Post.query.get_or_404(post_id)
+    cat = post.category
+    if len(Post.query.filter_by(category=cat).all()) == 1:
+        db.session.delete(cat)
+    db.session.delete(post)
+    db.session.commit()
     return redirect(url_for("admin"))
 
 @app.route("/login", methods=["GET", "POST"])
