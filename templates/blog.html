@@ -13,15 +13,32 @@
     <section class="wrapper-large post">
         <h2 class="post-title fw-bold">{{post.title}}</h2>
         <div class="time fs-small">
-            posted {% if show_category %}in {{post.category.name}} at {% endif %}{{post.date.strftime("%d %B %Y")}}
+            posted in {{post.taglist()}} at {{post.date.strftime("%d %B %Y")}}
         </div>
-        <div class="content">
-            {{post.content|markdown}}
-        </div>
-        <div class="url">
-            <p><strong>URL:</strong> <a href="https://{{post.mainurl}}">{{post.mainurl}}</a></p>
+        <div class="post-body">
+            <div class="content">
+                {{post.content|markdown}}
+            </div>
+            <div class="url">
+                <p><strong>URL:</strong> <a href="https://{{post.mainurl}}">{{post.mainurl}}</a></p>
+            </div>
         </div>
     </section>
+    <div class="post-bottom wrapper-large"><div class="fade"></div></div>
 </a>
 {% endfor %}
+<script>
+window.onload = function() {
+    $(".post").hover(function() {
+        // On hover
+        console.log("on hover");
+        $(this).children(".post-body").fadeIn(500);
+    }, function() {
+        // Off hover
+        $(this).children(".post-body").fadeOut(500);
+    });
+    $(".post-body").hide();
+    $(".fade").hide();
+}
+</script>
 {% endblock %}

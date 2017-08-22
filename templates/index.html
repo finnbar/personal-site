@@ -12,8 +12,8 @@
 <section class="wrapper">
     <!-- TODO: Maybe replace with something more exciting. Also fix spacing, it's enormous. -->
     <ul>
-        {% for category in categories %}
-        <li><a href="blog/{{category.name}}">{{category.name}}</a></li>
+        {% for tag in tags %}
+        <li><a href="blog/{{tag.name}}">{{tag.name}}</a></li>
         {% endfor %}
     </ul>
 </section>

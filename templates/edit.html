@@ -20,12 +20,12 @@
             <span class="url__label">URL</span>
         </label>
         {% if post.id == 0 %}
-        <label class="category">
-            <input type="text" name="category" />
-            <span class="category__label">Category</span>
+        <label class="tags">
+            <input type="text" name="tags" />
+            <span class="tags__label">Tags (denoted by #tag)</span>
         </label>
-        {% endif %}
         <br />
+        {% endif %}
         <input type="submit" value="Save" />
     </form>
 </section>

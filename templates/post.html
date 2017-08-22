@@ -2,13 +2,13 @@
 {% block title %}{{post.title}}{% endblock %}
 {% block content %}
 <header class="ta-right fs-small smol">
-    <a class="ta-left" style="float: left;" href="/blog/{{post.category.name}}">Back</a>
+    <!--<a class="ta-left" style="float: left;" href="/blog/previous">Back</a>-->
     <a class="ta-right" href="/admin">Admin site</a>
 </header>
 <section class="wrapper-large post-focus">
     <h2 class="post-title fw-bold">{{post.title}}</h2>
     <div class="time fs-small">
-        posted in {{post.category.name}} at {{post.date.strftime("%d %B %Y")}}
+        posted in {{post.taglist()}} at {{post.date.strftime("%d %B %Y")}}
     </div>
     <div class="content">
         {{post.content|markdown}}

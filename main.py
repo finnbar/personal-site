@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flaskext.markdown import Markdown
 from secretkey import get_secret_key, admin_salt, admin_hash
 from datetime import datetime
-import hashlib
+import hashlib, re
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -12,24 +12,26 @@ app.secret_key = get_secret_key()
 db = SQLAlchemy(app)
 md = Markdown(app)
 
+tag_split = re.compile("#(\w+)")
+
 @app.route("/")
 @app.route("/index")
 def index():
-    return render_template("index.html", categories=Category.query.all())
+    return render_template("index.html", tags=Tag.query.all())
 
 @app.route("/blog")
 @app.route("/blog/")
-@app.route("/blog/<category>")
-def blog(category=None):
+@app.route("/blog/<tag>")
+def blog(tag=None):
     posts = []
     title = "Posts"
-    if not category:
+    if not tag:
         posts = Post.query.order_by(Post.date.desc())
     else:
-        category = Category.query.filter_by(name=category.capitalize()).first_or_404()
-        posts = category.posts.order_by(Post.date.desc())
-        title = category.name.capitalize() + " Posts"
-    return render_template("blog.html", blog_title=title, posts=posts, show_category=(category==None))
+        tag = Tag.query.filter_by(name=tag.capitalize()).first_or_404()
+        posts = tag.posts.order_by(Post.date.desc())
+        title = tag.name.capitalize() + " Posts"
+    return render_template("blog.html", blog_title=title, posts=posts)
 
 @app.route("/post/<int:post_id>")
 def post(post_id=None):
@@ -64,7 +66,7 @@ def update(post_id):
     if not "loggedin" in session:
         return redirect(url_for("index"))
     if post_id == 0:
-        new_post(request.form["title"], request.form["content"], datetime.now(), request.form["url"], request.form["category"])
+        new_post(request.form["title"], request.form["content"], datetime.now(), request.form["url"], request.form["tags"])
     else:
         # Update Post
         post = Post.query.get_or_404(post_id)
@@ -79,9 +81,9 @@ def delete(post_id):
     if not "loggedin" in session:
         return redirect(url_for("index"))
     post = Post.query.get_or_404(post_id)
-    cat = post.category
-    if len(Post.query.filter_by(category=cat).all()) == 1:
-        db.session.delete(cat)
+    for tag in post.tags:
+        if len(tag.posts) == 1:
+            db.session.delete(tag)
     db.session.delete(post)
     db.session.commit()
     return redirect(url_for("admin"))
@@ -116,22 +118,22 @@ def authenticate(password):
 
 # Post Database:
 
-def new_post(title, content, date, mainurl, category_name):
-    # Find category, if not there, make it.
-    category = Category.query.filter_by(name=category_name.capitalize()).first()
-    if not category:
-        category = Category(category_name.capitalize())
-        db.session.add(category)
-    post = Post(title, content, date, mainurl, category)
+def new_post(title, content, date, mainurl, tag_string):
+    post = Post(title, content, date, mainurl)
+    # Find tag, if not there, make it.
+    for tag in tag_split.findall(tag_string):
+        tag_object = Tag.query.filter_by(name=tag.capitalize()).first()
+        if not tag_object:
+            tag_object = Tag(tag.capitalize())
+            db.session.add(tag_object)
+        post.tags.append(tag_object)
     db.session.add(post)
     db.session.commit()
 
-class Category(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(40))
-
-    def __init__(self, name):
-        self.name = name
+tags = db.Table('tags',
+        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
+        db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
+)
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -139,15 +141,27 @@ class Post(db.Model):
     content = db.Column(db.Text)
     date = db.Column(db.DateTime)
     mainurl = db.Column(db.String(100))
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
-    category = db.relationship('Category', backref=db.backref('posts', lazy='dynamic'))
+    tags = db.relationship('Tag', secondary=tags, backref=db.backref('posts', lazy='dynamic'))
 
-    def __init__(self, title, content, date, mainurl, category):
+    def __init__(self, title, content, date, mainurl):
         self.title = title
         self.content = content
         self.date = date
         self.mainurl = mainurl
-        self.category = category
+
+    def taglist(self):
+        tag_str = ""
+        for tag in self.tags:
+            tag_str += tag.name + ", "
+        return tag_str[:-2]
+
+class Tag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    #posts = db.relationship('Post', secondary=tags, backref=db.backref('tags', lazy='dynamic'))
+
+    def __init__(self, name):
+        self.name = name
 
 class EmptyPost():
     id = 0

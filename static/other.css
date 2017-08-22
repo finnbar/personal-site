@@ -6,15 +6,30 @@
     padding: 0 0;
 }
 
+.post-bottom {
+    position: relative;
+    height: 2rem;
+    padding: 0;
+}
+
+.fade {
+    position: absolute; /* oh no this is going to go badly */
+    top: -6.1rem;
+    height: 6rem;
+    width: 95%;
+    background: linear-gradient(0deg, white, transparent);
+}
+
 .post {
     padding: 1rem 2rem;
-    margin-bottom: 2rem;
+    /*margin-bottom: 2rem;*/
     border: 1px solid rgba(171,171,171,0.48);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-height: 12rem;
+    max-height: 10rem;
     transition: max-height 0.5s;
+    z-index: -1;
 }
 
 .post:hover {
