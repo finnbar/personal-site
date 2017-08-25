@@ -13,7 +13,7 @@
     <section class="wrapper-large post">
         <h2 class="post-title fw-bold">{{post.title}}</h2>
         <div class="time fs-small">
-            posted in {{post.taglist()}} at {{post.date.strftime("%d %B %Y")}}
+            posted in {% for tag in post.tag_names() %}<a href="/blog/{{tag}}">{{tag}}</a>{% if loop.last %}{% else %}, {% endif %}{% endfor %} at {{post.date.strftime("%d %B %Y")}}
         </div>
         <div class="post-body">
             <div class="content">

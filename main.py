@@ -150,10 +150,13 @@ class Post(db.Model):
         self.mainurl = mainurl
 
     def taglist(self):
-        tag_str = ""
+        tag_string = ''
         for tag in self.tags:
-            tag_str += tag.name + ", "
-        return tag_str[:-2]
+            tag_string += tag.name + ', '
+        return tag_string[:-2]
+
+    def tag_names(self):
+        return list(map(lambda tag: tag.name, self.tags))
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
