@@ -166,6 +166,9 @@ class Tag(db.Model):
     def __init__(self, name):
         self.name = name
 
+    def post_count(self):
+        return len(self.posts.all())
+
 class EmptyPost():
     id = 0
     title = "A New Post"
