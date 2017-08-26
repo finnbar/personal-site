@@ -17,7 +17,7 @@ tag_split = re.compile("#(\w+)")
 @app.route("/")
 @app.route("/index")
 def index():
-    return render_template("index.html", tags=Tag.query.all())
+    return render_template("index.html", tags=Tag.query.all(), tag_links=all_links())
 
 @app.route("/blog")
 @app.route("/blog/")
@@ -83,6 +83,10 @@ def delete(post_id):
     post = Post.query.get_or_404(post_id)
     for tag in post.tags:
         if len(tag.posts) == 1:
+            for link in LinkedTag.query.filter_by(source=tag.id):
+                db.session.delete(link)
+            for link in LinkedTag.query.filter_by(target=tag.id):
+                db.session.delete(link)
             db.session.delete(tag)
     db.session.delete(post)
     db.session.commit()
@@ -93,11 +97,8 @@ def login():
     if "loggedin" in session:
         return redirect(url_for("admin"))
     if request.method == "POST":
-        print("was POST")
         if "password" in request.form:
-            print(request.form["password"])
             if authenticate(request.form["password"]):
-                print("was correct")
                 session["loggedin"] = True
                 return redirect(url_for("admin"))
         return redirect(url_for("login"))
@@ -120,15 +121,44 @@ def authenticate(password):
 
 def new_post(title, content, date, mainurl, tag_string):
     post = Post(title, content, date, mainurl)
-    # Find tag, if not there, make it.
-    for tag in tag_split.findall(tag_string):
+    tags = tag_split.findall(tag_string)
+    tag_objects = []
+    for tag in tags:
+        # See if the tag exists already:
         tag_object = Tag.query.filter_by(name=tag.capitalize()).first()
         if not tag_object:
+            # If not, create it!
             tag_object = Tag(tag.capitalize())
             db.session.add(tag_object)
+        # Now add this object to the post:
         post.tags.append(tag_object)
+
+        db.session.commit()
+
+        # For all other tags we've encountered:
+        for linked_tag in tag_objects:
+            # Link it to this one.
+            link_tag(tag_object.id, linked_tag.id)
+        tag_objects.append(tag_object)
     db.session.add(post)
     db.session.commit()
+
+def link_tag(source, target):
+    existing_link = LinkedTag.query.filter_by(source=source, target=target).first()
+    if existing_link is None:
+        existing_link = LinkedTag.query.filter_by(source=target, target=source).first()
+    if existing_link is None:
+        link = LinkedTag(source, target)
+        db.session.add(link)
+    else:
+        existing_link.increment()
+    db.session.commit()
+
+def all_links():
+    links_data = []
+    for link in LinkedTag.query.all():
+        links_data.append({'source': link.source, 'target': link.target, 'value': link.value})
+    return links_data
 
 tags = db.Table('tags',
         db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
@@ -149,25 +179,32 @@ class Post(db.Model):
         self.date = date
         self.mainurl = mainurl
 
-    def taglist(self):
-        tag_string = ''
-        for tag in self.tags:
-            tag_string += tag.name + ', '
-        return tag_string[:-2]
-
     def tag_names(self):
         return list(map(lambda tag: tag.name, self.tags))
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
-    #posts = db.relationship('Post', secondary=tags, backref=db.backref('tags', lazy='dynamic'))
 
     def __init__(self, name):
         self.name = name
 
     def post_count(self):
         return len(self.posts.all())
+
+class LinkedTag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    source = db.Column(db.Integer, db.ForeignKey('tag.id'))
+    target = db.Column(db.Integer, db.ForeignKey('tag.id'))
+    value = db.Column(db.Integer)
+
+    def __init__(self, s, t):
+        self.source = s
+        self.target = t
+        self.value = 1
+
+    def increment(self):
+        self.value += 1
 
 class EmptyPost():
     id = 0

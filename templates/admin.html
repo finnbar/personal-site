@@ -12,7 +12,7 @@
     <p>Or modify one of the existing posts:</p>
     <ul>
         {% for post in posts %}
-        <li><a href="/admin/{{post.id}}">{{post.title}}</a> posted in {{post.taglist()}}. <a href="/admin/delete/{{post.id}}" title="Delete This Post"><i class="fa fa-trash" aria-hidden="true"></i></a></li>
+        <li><a href="/admin/{{post.id}}">{{post.title}}</a> posted in {% for tag in post.tag_names() %}<a href="/blog/{{tag}}">{{tag}}</a>{% if loop.last %}{% else %}, {% endif %}{% endfor %}. <a href="/admin/delete/{{post.id}}" title="Delete This Post"><i class="fa fa-trash" aria-hidden="true"></i></a></li>
         {% endfor %}
     </ul>
 </section>
