@@ -20,18 +20,24 @@ def index():
     return render_template("index.html", tags=Tag.query.all(), tag_links=all_links())
 
 @app.route("/blog")
-@app.route("/blog/")
-@app.route("/blog/<tag>")
-def blog(tag=None):
+@app.route("/blog/<int:page>")
+@app.route("/blog/<string:tag>")
+@app.route("/blog/<string:tag>/<int:page>")
+def blog(tag=None, page=1):
+    posts_per_page = 10
     posts = []
     title = "Posts"
+    pagination_url = "/" + str(tag)
+    pagination = Post.query.order_by(Post.date.desc()).paginate(page=page, per_page=posts_per_page)
     if not tag:
-        posts = Post.query.order_by(Post.date.desc())
+        posts = pagination.items
+        pagination_url = ""
     else:
         tag = Tag.query.filter_by(name=tag.capitalize()).first_or_404()
-        posts = tag.posts.order_by(Post.date.desc())
+        pagination = tag.posts.order_by(Post.date.desc()).paginate(page=page, per_page=posts_per_page)
+        posts = pagination.items
         title = tag.name.capitalize() + " Posts"
-    return render_template("blog.html", blog_title=title, posts=posts)
+    return render_template("blog.html", blog_title=title, posts=posts, pagination=pagination, pagination_url=pagination_url)
 
 @app.route("/post/<int:post_id>")
 def post(post_id=None):

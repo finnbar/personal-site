@@ -27,6 +27,23 @@
     <div class="post-separator"><div class="fade"></div></div>
 </a>
 {% endfor %}
+<section class="wrapper-small ta-center">
+    <div class="pagination">
+        |
+    {% for page in pagination.iter_pages() %}
+        {% if page %}
+            {% if page != pagination.page %}
+                <a href="/blog{{pagination_url}}/{{page}}">{{page}}</a>
+            {% else %}
+                <strong>{{page}}</strong>
+            {% endif %}
+        {% else %}
+            <span class=ellipsis>…</span>
+        {% endif %}
+    {% endfor %}
+        |
+    </div>
+</section>
 <script>
 window.onload = function() {
     $(".post").hover(function() {
