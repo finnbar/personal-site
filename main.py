@@ -160,6 +160,14 @@ def link_tag(source, target):
         existing_link.increment()
     db.session.commit()
 
+def unlink_tag(source, target):
+    existing_link = LinkedTag.query.filter_by(source=source, target=target).first()
+    if existing_link is None:
+        existing_link = LinkedTag.query.filter_by(source=target, target=source).first()
+    if not existing_link is None:
+        existing_link.decrement()
+        db.session.commit()
+
 def all_links():
     links_data = []
     for link in LinkedTag.query.all():
@@ -211,6 +219,9 @@ class LinkedTag(db.Model):
 
     def increment(self):
         self.value += 1
+
+    def decrement(self):
+        self.value -= 1
 
 class EmptyPost():
     id = 0

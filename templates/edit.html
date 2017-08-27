@@ -19,13 +19,11 @@
             <input type="text" name="url" value="{{post.mainurl}}" />
             <span class="url__label">URL</span>
         </label>
-        {% if post.id == 0 %}
         <label class="tags">
-            <input type="text" name="tags" />
+            <input type="text" name="tags" value="{% if post.id != 0 %}{% for tag in post.tags %}#{{tag.name}} {% endfor %}{% endif %}" />
             <span class="tags__label">Tags (denoted by #tag)</span>
         </label>
         <br />
-        {% endif %}
         <input type="submit" value="Save" />
     </form>
 </section>
