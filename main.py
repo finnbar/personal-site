@@ -1,3 +1,10 @@
+'''
+TODO:
+* Implement tag modification via removing all tags and then readding them.
+* Image upload.
+* Actual hosting etc.
+'''
+
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flaskext.markdown import Markdown
@@ -87,13 +94,7 @@ def delete(post_id):
     if not "loggedin" in session:
         return redirect(url_for("index"))
     post = Post.query.get_or_404(post_id)
-    for tag in post.tags:
-        if len(tag.posts) == 1:
-            for link in LinkedTag.query.filter_by(source=tag.id):
-                db.session.delete(link)
-            for link in LinkedTag.query.filter_by(target=tag.id):
-                db.session.delete(link)
-            db.session.delete(tag)
+    remove_tags(post)
     db.session.delete(post)
     db.session.commit()
     return redirect(url_for("admin"))
@@ -123,10 +124,51 @@ def authenticate(password):
     encoded = password.encode("utf-8")
     return hashlib.sha256(encoded + salt).hexdigest() == hashed
 
-# Post Database:
+# Posts Functionality:
 
 def new_post(title, content, date, mainurl, tag_string):
     post = Post(title, content, date, mainurl)
+    post.tags = add_tags(tag_string)
+    db.session.add(post)
+    db.session.commit()
+
+def link_tag(source, target):
+    existing_link = find_link(source, target)
+    if existing_link is None:
+        link = LinkedTag(source, target)
+        db.session.add(link)
+    else:
+        existing_link.increment()
+    db.session.commit()
+
+def unlink_tag(source, target):
+    existing_link = find_link(source, target)
+    if not existing_link is None:
+        existing_link.decrement()
+        db.session.commit()
+
+def find_link(source, target):
+    existing_link = LinkedTag.query.filter_by(source=source, target=target).first()
+    if existing_link is None:
+        existing_link = LinkedTag.query.filter_by(source=target, target=source).first()
+    return existing_link
+
+def all_links():
+    links_data = []
+    for link in LinkedTag.query.all():
+        links_data.append({'source': link.source, 'target': link.target, 'value': link.value})
+    return links_data
+
+def remove_tags(post):
+    for tag in post.tags:
+        if len(tag.posts) == 1:
+            for link in LinkedTag.query.filter_by(source=tag.id):
+                db.session.delete(link)
+            for link in LinkedTag.query.filter_by(target=tag.id):
+                db.session.delete(link)
+            db.session.delete(tag)
+
+def add_tags(tag_string):
     tags = tag_split.findall(tag_string)
     tag_objects = []
     for tag in tags:
@@ -136,9 +178,6 @@ def new_post(title, content, date, mainurl, tag_string):
             # If not, create it!
             tag_object = Tag(tag.capitalize())
             db.session.add(tag_object)
-        # Now add this object to the post:
-        post.tags.append(tag_object)
-
         db.session.commit()
 
         # For all other tags we've encountered:
@@ -146,33 +185,7 @@ def new_post(title, content, date, mainurl, tag_string):
             # Link it to this one.
             link_tag(tag_object.id, linked_tag.id)
         tag_objects.append(tag_object)
-    db.session.add(post)
-    db.session.commit()
-
-def link_tag(source, target):
-    existing_link = LinkedTag.query.filter_by(source=source, target=target).first()
-    if existing_link is None:
-        existing_link = LinkedTag.query.filter_by(source=target, target=source).first()
-    if existing_link is None:
-        link = LinkedTag(source, target)
-        db.session.add(link)
-    else:
-        existing_link.increment()
-    db.session.commit()
-
-def unlink_tag(source, target):
-    existing_link = LinkedTag.query.filter_by(source=source, target=target).first()
-    if existing_link is None:
-        existing_link = LinkedTag.query.filter_by(source=target, target=source).first()
-    if not existing_link is None:
-        existing_link.decrement()
-        db.session.commit()
-
-def all_links():
-    links_data = []
-    for link in LinkedTag.query.all():
-        links_data.append({'source': link.source, 'target': link.target, 'value': link.value})
-    return links_data
+    return tag_objects
 
 tags = db.Table('tags',
         db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),

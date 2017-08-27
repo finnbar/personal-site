@@ -51,7 +51,7 @@ window.onload = function() {
 
     var link_force = d3.forceLink(links_data)
                      .id(function(d) { return d.id; })
-                     .distance(80);
+                     .distance(120);
 
     simulation
         .force("charge_force", d3.forceManyBody())
