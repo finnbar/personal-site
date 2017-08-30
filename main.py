@@ -1,7 +1,5 @@
 '''
 TODO:
-* Implement tag modification via removing all tags and then readding them.
-* Image upload.
 * Actual hosting etc.
 '''
 
@@ -156,7 +154,7 @@ def find_link(source, target):
 def all_links():
     links_data = []
     for link in LinkedTag.query.all():
-        links_data.append({'source': link.source, 'target': link.target, 'value': link.value})
+        links_data.append({"source": link.source, "target": link.target, "value": link.value})
     return links_data
 
 def remove_tags(post):
@@ -187,9 +185,9 @@ def add_tags(tag_string):
         tag_objects.append(tag_object)
     return tag_objects
 
-tags = db.Table('tags',
-        db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
-        db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
+tags = db.Table("tags",
+        db.Column("tag_id", db.Integer, db.ForeignKey("tag.id")),
+        db.Column("post_id", db.Integer, db.ForeignKey("post.id")),
 )
 
 class Post(db.Model):
@@ -198,7 +196,7 @@ class Post(db.Model):
     content = db.Column(db.Text)
     date = db.Column(db.DateTime)
     mainurl = db.Column(db.String(100))
-    tags = db.relationship('Tag', secondary=tags, backref=db.backref('posts', lazy='dynamic'))
+    tags = db.relationship("Tag", secondary=tags, backref=db.backref("posts", lazy="dynamic"))
 
     def __init__(self, title, content, date, mainurl):
         self.title = title
@@ -221,8 +219,8 @@ class Tag(db.Model):
 
 class LinkedTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    source = db.Column(db.Integer, db.ForeignKey('tag.id'))
-    target = db.Column(db.Integer, db.ForeignKey('tag.id'))
+    source = db.Column(db.Integer, db.ForeignKey("tag.id"))
+    target = db.Column(db.Integer, db.ForeignKey("tag.id"))
     value = db.Column(db.Integer)
 
     def __init__(self, s, t):
