@@ -1,3 +1,3 @@
 #!/bin/sh
 
-FLASK_APP=main.py flask shell
+FLASK_APP=personalsite flask shell
