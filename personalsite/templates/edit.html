@@ -31,6 +31,6 @@
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <script>
     var simplemde = new SimpleMDE();
-    simplemde.value(`{{post.content}}`);
+    simplemde.value(`{{post.content|replace("`", "\`")}}`);
 </script>
 {% endblock %}
