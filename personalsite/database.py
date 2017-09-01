@@ -59,7 +59,7 @@ def all_links():
 
 def remove_tags(post):
     for tag in post.tags:
-        if len(tag.posts) == 1:
+        if len(tag.posts.all()) == 1:
             for link in LinkedTag.query.filter_by(source=tag.id):
                 db.session.delete(link)
             for link in LinkedTag.query.filter_by(target=tag.id):
