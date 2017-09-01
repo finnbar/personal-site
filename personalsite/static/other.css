@@ -35,8 +35,8 @@
 }
 
 .post:hover {
-    max-height: 50rem; /* arbitrary, keeps the animation quick */
-    transition: max-height 0.5s;
+    max-height: 25rem; /* arbitrary, keeps the animation quick */
+    transition: max-height 0.3s;
 }
 
 .post-title {
@@ -53,6 +53,7 @@
 
 .content {
     padding-top: 1rem;
+    white-space: normal;
     /*padding-left: 2rem;*/
 }
 
