@@ -52,8 +52,11 @@ window.onload = function() {
                      .id(function(d) { return d.id; })
                      .distance(120);
 
+    var many_body = d3.forceManyBody()
+                      .strength(-60);
+
     simulation
-        .force("charge_force", d3.forceManyBody())
+        .force("charge_force", many_body)
         .force("center_force", d3.forceCenter(width / 2, height / 2))
         .force("links", link_force);
 
