@@ -9,8 +9,8 @@
     <h1>Editing {{post.title}}</h1>
 </section>
 <section class="wrapper-large">
-    <textarea form="edit" name="content"></textarea>
-    <form action="/admin/update/{{post.id}}" method="POST" id="edit">
+    <textarea form="edit" id="content" name="content"></textarea>
+    <form action="/admin/update/{{post.id}}" method="POST" id="edit" onsubmit="needConfirm = false;">
         <label class="title">
             <input type="text" name="title" value="{{post.title}}" />
             <span class="title__label">Title</span>
@@ -30,7 +30,17 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 <script>
-    var simplemde = new SimpleMDE();
-    simplemde.value(`{{post.content|replace("`", "\`")}}`);
+var needConfirm = true;
+var simplemde = new SimpleMDE();
+simplemde.value(`{{post.content|replace("`", "\`")}}`);
+
+window.onbeforeunload = function() {
+    if (simplemde.value() != "" && needConfirm) {
+        return "Are you sure you want to leave this page? Your edits will not be saved.";
+    } else {
+        return null;
+    }
+    // Neither the textarea is empty or we don't needConfirm
+}
 </script>
 {% endblock %}
