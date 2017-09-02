@@ -6,7 +6,7 @@ from datetime import datetime
 @app.route("/")
 @app.route("/index")
 def index():
-    return render_template("index.html", tags=Tag.query.all(), tag_links=all_links())
+    return render_template("index.html", tags=Tag.query.all(), tag_links=all_links(), number_of_posts=len(Post.query.all()))
 
 @app.route("/blog")
 @app.route("/blog/<int:page>")
