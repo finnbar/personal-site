@@ -61,7 +61,7 @@ window.onload = function() {
     simulation
         .force("charge_force", many_body)
         .force("center_force", d3.forceCenter(width / 2, height / 2))
-        .force("collision", collision)
+//        .force("collision", collision)
         .force("links", link_force);
 
     var link = svg.append("g")
