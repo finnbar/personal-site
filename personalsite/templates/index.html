@@ -49,15 +49,19 @@ window.onload = function() {
                        .nodes(node_data);
 
     var link_force = d3.forceLink(links_data)
-                     .id(function(d) { return d.id; })
-                     .distance(function(l) { return Math.max(l.source.posts,l.target.posts)*30; });
+                       .id(function(d) { return d.id; })
+                       .distance(function(l) { return Math.max(l.source.posts,l.target.posts)*30; });
 
     var many_body = d3.forceManyBody()
-                     .strength(function(d) { return (d.posts/{{number_of_posts}})*-500; });
+                      .strength(function(d) { return (d.posts/{{number_of_posts}})*-500; });
+
+    var collision = d3.forceCollide()
+                      .radius(function(d) { return radius(d.posts); });
 
     simulation
         .force("charge_force", many_body)
         .force("center_force", d3.forceCenter(width / 2, height / 2))
+        .force("collision", collision)
         .force("links", link_force);
 
     var link = svg.append("g")
@@ -78,8 +82,7 @@ window.onload = function() {
                   .append("circle")
                   .attr("r", function(d) { return radius(d.posts); })
                   .attr("fill", "white")
-                  .attr("stroke", "black")
-                  .attr("style", "opacity: 0.5;");
+                  .attr("stroke", "rgba(0,0,0,0.5)");
 
     var text = svg.append("g")
                   .attr("class", "labels")
