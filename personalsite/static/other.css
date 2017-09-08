@@ -66,6 +66,10 @@
     color: #3c3c3d;
 }
 
+/*text {
+    font-family: monospace;
+}*/
+
 /*@keyframes fadeIn {
     0% {display: none; opacity:0;}
     1% {display: block; opacity:0;}

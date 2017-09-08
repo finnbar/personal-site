@@ -78,7 +78,8 @@ window.onload = function() {
                   .append("circle")
                   .attr("r", function(d) { return radius(d.posts); })
                   .attr("fill", "white")
-                  .attr("stroke", "black");
+                  .attr("stroke", "black")
+                  .attr("style", "opacity: 0.5;");
 
     var text = svg.append("g")
                   .attr("class", "labels")
@@ -88,9 +89,9 @@ window.onload = function() {
                   .append("svg:a")
                   .attr("xlink:href", function(d) { return "/blog/"+d.name; })
                   .append("text")
-                  .attr("dx", 12)
+                  .attr("dx", function (d) { return -radius(d.posts); })
                   .attr("dy", "0.3em")
-                  .attr("style", function(d) { return "font-size: "+(d.posts/{{number_of_posts}})*80+"px"; })
+                  .attr("style", function(d) { return "font-size: "+(d.posts/{{number_of_posts}})*80+"px; text-anchor: middle;"; })
                   .text(function(d) { return d.name; });
 
     function radius(posts) {
