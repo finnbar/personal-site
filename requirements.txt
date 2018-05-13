@@ -1,3 +1,5 @@
 flask
 flask-markdown
 flask-sqlalchemy
+Flask-SSLify
+
